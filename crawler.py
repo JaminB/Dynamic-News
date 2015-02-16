@@ -25,12 +25,25 @@ def twitter_date_convert(dateString):
 def get_current_date_time():
     from datetime import datetime
     now = datetime.now()
-    return str(now)
+    return str(now)[0:str(now).index('.')]
 
 def get_current_date_time_minus(min):
     from datetime import datetime, timedelta
     now = datetime.now() - timedelta(minutes=min)
-    return str(now)
+    return str(now)[0: str(now).index('.')]
+
+def get_date_time_minus(date, min):
+    from datetime import datetime, timedelta
+    format = '%Y-%m-%d %H:%M:%S'
+    date = datetime.strptime(date, format)
+    return date - timedelta(minutes=min)
+
+def first_date_larger(firstDate, secondDate):
+    from datetime import datetime
+    format = '%Y-%m-%d %H:%M:%S'
+    firstDate = datetime.strptime(firstDate, format)
+    secondDate =  datetime.strptime(secondDate, format)
+    return firstDate > secondDate
 
 
 class HTTP:
@@ -107,6 +120,8 @@ class StoredQueries:
             .replace('[text]', text)\
             .replace('[follower_count]', follower_count)).get_result())
 
+    def get_relevant_article_tags(self, mindatetime):
+        return MySql(str(self.queries['get_relevant_article_tags']).replace('[date]', mindatetime)).get_result()
 
 
     def check_continent(self, continent):
@@ -143,6 +158,7 @@ class StoredQueries:
         if len(MySql(str(self.queries['get_conjunction']).replace('[conjunction]', conjunction).replace('[equals]', '=')).get_result()) != 0:
             return True
         return False
+
 
 
 class JSON:
@@ -211,7 +227,7 @@ class NewsArticle:
         tags.sort(key=operator.itemgetter(1), reverse = True)
         for tag in tags:
             if tag[0] not in selectTags:
-                if len(selectTags) < 3:
+                if len(selectTags) < 2:
                     selectTags.append(tag[0])
         for tag in selectTags:
             self.tags += tag + '|'
@@ -253,7 +269,7 @@ class NewsGrabber:
     def __init__(self):
         import config_parser
         self.settings = config_parser.CrawlerConfig().get_config()
-        self.rawData = HTTP(self.settings['world_news_url']).html
+        self.rawData = HTTP(self.settings['world_news_url'].replace('[equals]', '=')).html
         self.articles = JSON(self.rawData).jsonObject['articles']
         self.cachedArticles = self._cache_articles()
 
@@ -270,7 +286,7 @@ class NewsGrabber:
         return cachedArticles
 
     def _get_world_news_url(self):
-        return self.settings['world_news_url']
+        return self.settings['world_news_url'].replace('[equals]','=')
 
     def _get_base_url(self):
         return self.settings['base_url']
@@ -292,9 +308,9 @@ class NewsGrabber:
                                            escape_string(article.get_summary().replace('\n',' ')),
                                            feedzilla_date_convert(article.get_publish_date()),
                                            article.get_url(),article.get_location(), article.get_tags())
-                print("ADDING: '" + article.get_title() + ", " + article.get_location() + "'")
+                print("ADDING NEWS ARTICLE: " + article.get_publish_date() + ', ' + article.get_title()[0:30] + ', ' + article.get_location() + "")
             except err.IntegrityError:
-                print("Ignoring insertion of '" + article.get_title() + ", " + article.get_location() + "' as it already exists in our database.")
+                print("DUPLICATE NEWS ARTICLE: '" + article.get_publish_date() + ', ' + article.get_title()[0:30] + ", " + article.get_location())
 
 class Tweet():
     def __init__(self, twitter_id, news_id, screen_name, created_at, hashtags, location, coordinates, text, followers_count):
@@ -337,11 +353,12 @@ class Tweet():
 
 
 class TweetGrabber():
-    def __init__(self, keywords, newsid):
+    def __init__(self, keywords, newsid, publishDate):
         import config_parser
         from TwitterSearch import TwitterSearchOrder
         from TwitterSearch import TwitterSearch
         self.newsid = newsid
+        self.publishDate = publishDate
         self.settings = config_parser.CrawlerConfig().get_config()
         self.keywords = keywords
         self.tweets = []
@@ -360,21 +377,24 @@ class TweetGrabber():
     def _cache_tweets(self):
         tweets = []
         for tweet in self.ts.search_tweets_iterable(self.tso):
-            coordinates = None
-            if tweet['coordinates'] != None:
-                coordinates = tweet['coordinates']['coordinates']
-            tweets.append(Tweet(
-                                tweet['id'],
-                                self.newsid,
-                                tweet['user']['screen_name'],
-                                twitter_date_convert(tweet['created_at']),
-                                tweet['entities']['hashtags'],
-                                tweet['user']['location'],
-                                coordinates,
-                                tweet['text'],
-                                tweet['user']['followers_count']
-                                )
-            )
+            created_at = str(twitter_date_convert(tweet['created_at']))
+            publishDate = str(get_date_time_minus(self.publishDate, 360)) #6 hours prior to publishDate
+            if first_date_larger(created_at, publishDate): #Make sure the tweet was posted after the article
+                coordinates = None
+                if tweet['coordinates'] != None:
+                    coordinates = tweet['coordinates']['coordinates']
+                tweets.append(Tweet(
+                                    tweet['id'],
+                                    self.newsid,
+                                    tweet['user']['screen_name'],
+                                    created_at,
+                                    tweet['entities']['hashtags'],
+                                    tweet['user']['location'],
+                                    coordinates,
+                                    tweet['text'],
+                                    tweet['user']['followers_count']
+                                    )
+                )
         return tweets
 
     def store_tweets(self):
@@ -395,16 +415,47 @@ class TweetGrabber():
                                          str(tweet.get_coordinates()),
                                          escape_string(str(tweet.get_text().encode('ascii', 'ignore'))),
                                          str(tweet.get_follower_count()))
-                print("ADDING: '" + str(tweet.get_twitter_id()) + ", " + tweet.get_location() + "'")
+                print("ASSOCIATING TWEET TO NEWS ARTICLE(" + str(tweet.get_news_id()) + '): ' + str(tweet.get_created_date()[0:30]) + ', ' + str(tweet.get_twitter_id()) + ', ' + tweet.get_screen_name() + ', ' + tweet.get_location())
             except err.IntegrityError:
-                    print("Ignoring insertion of '" + str(tweet.get_twitter_id()) + ", " + tweet.get_location() + "' as it already exists in our database.")
+                    print("DUPLICATE TWEET: " + str(tweet.get_created_date()) + ', ' + str(tweet.get_twitter_id()) + ', ' + tweet.get_location())
+
+
+
+def run(tolerence):
+    from time import sleep
+    from TwitterSearch import TwitterSearchException
+    while True:
+        print('Storing News Articles...')
+        print('Only associating articles to tweets where the article publish date is greater than: ' + str(get_date_time_minus(get_current_date_time(), tolerence)))
+        NewsGrabber().store_articles()
+        idsTagsDatesLocations = StoredQueries().get_relevant_article_tags(str(get_date_time_minus(get_current_date_time(), tolerence)))
+        for idTagDateLocation in idsTagsDatesLocations:
+            id = idTagDateLocation[0]
+            tags = str(idTagDateLocation[1]).split('|')
+            for i in range(0, len(tags)):
+                if tags[i] == '':
+                    tags.__delitem__(i)
+
+            publishDate = str(idTagDateLocation[2])
+            location = str(idTagDateLocation[3])
+            tags.append(location)
+            print('Searching Twitter for... article id:' + str(id) + ', using tags: ' + str(tags))
+            try:
+                TweetGrabber(tags, id, publishDate).store_tweets()
+            except TwitterSearchException:
+                print('Sleeping...Twitter API query quota reached.')
+                sleep(60)
+                print('Trying again...')
 
 
 
 #NewsGrabber().store_articles()
+#print(StoredQueries().get_relevant_article_tags(str(get_date_time_minus(get_current_date_time(),4320 ))))
 #print(StoredQueries().insert_tweet('0', '0', 'screen_name', '01/02/2015', 'hashtags', 'location', 'coordinates', 'text', '2'))
 
-#TweetGrabber(['reilly', 'charlotte'], 0).store_tweets()
-print(get_current_date_time_minus(120))
+#TweetGrabber(['obama', 'china'], 0, '2015-02-16 00:00:00').store_tweets()
+
+#print(first_date_larger(get_current_date_time_minus(-5), get_current_date_time()))
+run(5000)
 
 
