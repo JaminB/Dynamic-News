@@ -21,7 +21,16 @@ def twitter_date_convert(dateString):
     time = splitDate[len(splitDate) - 3]
     #print(year + '-' + month + '-' + day + ' ' + time)
     return year + '-' + month + '-' + day + ' ' + time
-#fix this shit^^
+
+def get_current_date_time():
+    from datetime import datetime
+    now = datetime.now()
+    return str(now)
+
+def get_current_date_time_minus(min):
+    from datetime import datetime, timedelta
+    now = datetime.now() - timedelta(minutes=min)
+    return str(now)
 
 
 class HTTP:
@@ -87,17 +96,6 @@ class StoredQueries:
             .replace('[tags]', tags)).get_result())
 
     def insert_tweet(self, twitter_id,  id, screen_name, created_at, hashtags, location, coordinates, text, follower_count):
-        print(self.queries['insert_tweet']\
-            .replace('[twitter_id]', twitter_id)\
-            .replace('[news_id]', id)\
-            .replace('[screen_name]', screen_name)\
-            .replace('[created_at]', created_at)\
-            .replace('[hashtags]', hashtags)\
-            .replace('[location]', location)\
-            .replace('[coordinates]', coordinates)\
-            .replace('[text]', text)\
-            .replace('[follower_count]', follower_count))
-
         return str(MySql(self.queries['insert_tweet']\
             .replace('[twitter_id]', twitter_id)\
             .replace('[news_id]', id)\
@@ -406,6 +404,7 @@ class TweetGrabber():
 #NewsGrabber().store_articles()
 #print(StoredQueries().insert_tweet('0', '0', 'screen_name', '01/02/2015', 'hashtags', 'location', 'coordinates', 'text', '2'))
 
-TweetGrabber(['reilly', 'charlotte'], 0).store_tweets()
+#TweetGrabber(['reilly', 'charlotte'], 0).store_tweets()
+print(get_current_date_time_minus(120))
 
 
