@@ -8,16 +8,20 @@ def feedzilla_date_convert(dateString):
     month = months[splitDate[2]]
     year = splitDate[3]
     time = splitDate[4]
+    #print(year + '-' + month + '-' + day + ' ' + time)
     return year + '-' + month + '-' + day + ' ' + time
 
 def twitter_date_convert(dateString):
+    #print(dateString)
     months = {'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'}
     splitDate = str(dateString).split(' ')
-    day = splitDate[1]
-    month = splitDate[2]
+    day = splitDate[2]
+    month = months[splitDate[1]]
     year = splitDate[len(splitDate) - 1]
     time = splitDate[len(splitDate) - 3]
+    #print(year + '-' + month + '-' + day + ' ' + time)
     return year + '-' + month + '-' + day + ' ' + time
+#fix this shit^^
 
 
 class HTTP:
@@ -66,12 +70,12 @@ class StoredQueries:
     def get_last_id(self):
         return self.queries['last_feedzilla_id']
 
-    def insert_article(self, title, source, source_url, summary, publish_date, url, location, tags):
+    def insert_news_article(self, title, source, source_url, summary, publish_date, url, location, tags):
         if MySql(self.get_last_id()).get_result()[0][0] == None:
             id = '0'
         else:
             id = str(int(MySql(self.get_last_id()).get_result()[0][0]) + 1) #gets the last primary key id in the database, and adds one
-        return str(self.queries['insert_article'])\
+        return str(MySql(self.queries['insert_news_article']\
             .replace('[id]',id)\
             .replace('[title]',title)\
             .replace('[source]',source)\
@@ -80,16 +84,40 @@ class StoredQueries:
             .replace('[publish_date]',publish_date)\
             .replace('[url]',url)\
             .replace('[location]', location)\
-            .replace('[tags]', tags)
+            .replace('[tags]', tags)).get_result())
+
+    def insert_tweet(self, twitter_id,  id, screen_name, created_at, hashtags, location, coordinates, text, follower_count):
+        print(self.queries['insert_tweet']\
+            .replace('[twitter_id]', twitter_id)\
+            .replace('[news_id]', id)\
+            .replace('[screen_name]', screen_name)\
+            .replace('[created_at]', created_at)\
+            .replace('[hashtags]', hashtags)\
+            .replace('[location]', location)\
+            .replace('[coordinates]', coordinates)\
+            .replace('[text]', text)\
+            .replace('[follower_count]', follower_count))
+
+        return str(MySql(self.queries['insert_tweet']\
+            .replace('[twitter_id]', twitter_id)\
+            .replace('[news_id]', id)\
+            .replace('[screen_name]', screen_name)\
+            .replace('[created_at]', created_at)\
+            .replace('[hashtags]', hashtags)\
+            .replace('[location]', location)\
+            .replace('[coordinates]', coordinates)\
+            .replace('[text]', text)\
+            .replace('[follower_count]', follower_count)).get_result())
+
 
 
     def check_continent(self, continent):
-        if len(MySql(str(self.queries['get_continent']).replace('[continent]', continent).replace('[equals]', '=')).get_result()) != 0:
+        if len(MySql(str(self.queries['get_news_continent']).replace('[continent]', continent).replace('[equals]', '=')).get_result()) != 0:
             return True
         return False
 
     def check_country(self, country):
-        if len(MySql(str(self.queries['get_country']).replace('[country]', country).replace('[equals]', '=')).get_result()) != 0:
+        if len(MySql(str(self.queries['get_news_country']).replace('[country]', country).replace('[equals]', '=')).get_result()) != 0:
             return True
         return False
 
@@ -260,51 +288,124 @@ class NewsGrabber:
         from pymysql import err
         for article in self.cachedArticles:
             try:
-                """print((StoredQueries().insert_article(escape_string(article.get_title()),
+                StoredQueries().insert_news_article(escape_string(article.get_title()),
                                            escape_string(article.get_source()),
                                            article.get_source_url(),
                                            escape_string(article.get_summary().replace('\n',' ')),
                                            feedzilla_date_convert(article.get_publish_date()),
-                                           article.get_url(),article.get_location(), article.get_tags())))
-                                           """
-
-                MySql(StoredQueries().insert_article(escape_string(article.get_title()),
-                                           escape_string(article.get_source()),
-                                           article.get_source_url(),
-                                           escape_string(article.get_summary().replace('\n',' ')),
-                                           feedzilla_date_convert(article.get_publish_date()),
-                                           article.get_url(),article.get_location(), article.get_tags()))
+                                           article.get_url(),article.get_location(), article.get_tags())
                 print("ADDING: '" + article.get_title() + ", " + article.get_location() + "'")
             except err.IntegrityError:
-                print("Ignoring insertion of '" + article.get_tags() + ", " + article.get_location() + "' as it already exists in our database.")
+                print("Ignoring insertion of '" + article.get_title() + ", " + article.get_location() + "' as it already exists in our database.")
+
+class Tweet():
+    def __init__(self, twitter_id, news_id, screen_name, created_at, hashtags, location, coordinates, text, followers_count):
+        self.twitter_id = twitter_id
+        self.news_id = news_id
+        self.screen_name = screen_name
+        self.created_at = created_at
+        self.hashtags = hashtags
+        self.location = location
+        self.coordinates = coordinates
+        self.text = text
+        self.followers_count = followers_count
+
+    def get_twitter_id(self):
+        return self.twitter_id
+
+    def get_news_id(self):
+        return self.news_id
+
+    def get_screen_name(self):
+        return self.screen_name
+
+    def get_created_date(self):
+        return self.created_at
+
+    def get_hashtags(self):
+        return self.hashtags
+
+    def get_location(self):
+        return self.location
+
+    def get_coordinates(self):
+        return self.coordinates
+
+    def get_text(self):
+        return self.text
+
+    def get_follower_count(self):
+        return self.followers_count
+
 
 class TweetGrabber():
-    def __init__(self, keywords):
+    def __init__(self, keywords, newsid):
         import config_parser
         from TwitterSearch import TwitterSearchOrder
         from TwitterSearch import TwitterSearch
+        self.newsid = newsid
         self.settings = config_parser.CrawlerConfig().get_config()
         self.keywords = keywords
+        self.tweets = []
         self.tso = TwitterSearchOrder()
         self.tso.set_keywords(keywords)
         self.tso.set_language('en')
-        self.tso.set_include_entities(False)
+        self.tso.set_include_entities(True)
         self.ts = TwitterSearch(
         consumer_key = self.settings['consumer_key'],
         consumer_secret = self.settings['consumer_secret'],
         access_token = self.settings['access_token'],
         access_token_secret = self.settings['access_token_secret']
         )
+        self.cachedTweets = self._cache_tweets()
 
-
-
-    def get_tweets(self):
+    def _cache_tweets(self):
+        tweets = []
         for tweet in self.ts.search_tweets_iterable(self.tso):
-            print(twitter_date_convert(tweet['created_at']))
+            coordinates = None
+            if tweet['coordinates'] != None:
+                coordinates = tweet['coordinates']['coordinates']
+            tweets.append(Tweet(
+                                tweet['id'],
+                                self.newsid,
+                                tweet['user']['screen_name'],
+                                twitter_date_convert(tweet['created_at']),
+                                tweet['entities']['hashtags'],
+                                tweet['user']['location'],
+                                coordinates,
+                                tweet['text'],
+                                tweet['user']['followers_count']
+                                )
+            )
+        return tweets
+
+    def store_tweets(self):
+        from pymysql import escape_string
+        from pymysql import err
+        for tweet in self.cachedTweets:
+            hashtags = ''
+            for hashtag in tweet.get_hashtags():
+                hashtags += str(hashtag['text'].encode('ascii', 'ignore')) + '|'
+            try:
+                StoredQueries().insert_tweet(
+                                         str(tweet.get_twitter_id())[-5:],
+                                         str(tweet.get_news_id()),
+                                         str(tweet.get_screen_name()),
+                                         str(tweet.get_created_date()),
+                                         escape_string(str(hashtags)),
+                                         escape_string(str(tweet.get_location().encode('ascii', 'ignore'))),
+                                         str(tweet.get_coordinates()),
+                                         escape_string(str(tweet.get_text().encode('ascii', 'ignore'))),
+                                         str(tweet.get_follower_count()))
+                print("ADDING: '" + str(tweet.get_twitter_id()) + ", " + tweet.get_location() + "'")
+            except err.IntegrityError:
+                    print("Ignoring insertion of '" + str(tweet.get_twitter_id()) + ", " + tweet.get_location() + "' as it already exists in our database.")
 
 
-NewsGrabber().store_articles()
 
-#TweetGrabber(['Microfinance','Chigumula','Malawi24']).get_tweets()
+#NewsGrabber().store_articles()
+#print(StoredQueries().insert_tweet('0', '0', 'screen_name', '01/02/2015', 'hashtags', 'location', 'coordinates', 'text', '2'))
+
+TweetGrabber(['reilly', 'charlotte'], 0).store_tweets()
 
 

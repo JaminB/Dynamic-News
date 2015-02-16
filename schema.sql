@@ -3,7 +3,7 @@ CREATE DATABASE dynamic_news;
 USE dynamic_news;
 
 CREATE TABLE feedzilla(
-	id integer NOT NULL,
+	id INTEGER NOT NULL,
 	title VARCHAR(200) NOT NULL,
   	source VARCHAR(200) NOT NULL,
   	source_url VARCHAR(200) NOT NULL,
@@ -15,6 +15,20 @@ CREATE TABLE feedzilla(
 	PRIMARY KEY (id),
 	UNIQUE KEY (title)
 );
+
+CREATE TABLE twitter(
+    tweet_id DOUBLE NOT NULL,
+    news_id INTEGER NOT NULL,
+    screen_name VARCHAR(50) NOT NULL,
+    created_at DATETIME NOT NULL,
+    hashtags VARCHAR(140) NOT NULL,
+    location VARCHAR(200) NOT NULL,
+    coordinates VARCHAR(200) NOT NULL,
+    text VARCHAR(150) NOT NULL,
+    follower_count INTEGER NOT NULL,
+    PRIMARY KEY (tweet_id)
+);
+
 CREATE TABLE continents(
     continent VARCHAR(200) NOT NULL,
     PRIMARY KEY (continent)

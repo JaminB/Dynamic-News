@@ -61,7 +61,7 @@ class DatabaseConfig:
 
 class DatabaseQueries:
     def __init__(self):
-        keywords = ['last_feedzilla_id','databases', 'insert_article', 'get_continent', 'get_country', 'get_country_like', 'get_verb', 'get_preposition', 'get_pronoun', 'get_article_adj', 'get_conjunction']
+        keywords = ['last_feedzilla_id','databases', 'insert_news_article', 'get_news_continent', 'get_news_country', 'get_news_country_like', 'get_verb', 'get_preposition', 'get_pronoun', 'get_article_adj', 'get_conjunction', 'insert_tweet']
         ignoreList = []
         self.data = Generic('queries.conf', keywords, ignoreList)
 
