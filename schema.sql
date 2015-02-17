@@ -1,4 +1,4 @@
-DROP DATABASE dynamic_news;
+#DROP DATABASE dynamic_news;
 CREATE DATABASE dynamic_news;
 USE dynamic_news;
 
