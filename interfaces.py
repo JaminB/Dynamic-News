@@ -56,12 +56,7 @@ class Feedzilla:
             location = self.feedzillaBlob[i][7]
             tags = self.feedzillaBlob[i][8][:-1].split('|')
             self.articles.append({'id': id, 'title': title, 'source': source, 'source_url': source_url, 'summary': summary, 'publish_date': str(publish_date), 'location': location, 'tags': tags})
-
-            print('{'+json.dumps(self.articles, sort_keys=True, indent=4, separators=(',', ': '))+'}')
-
-
-        
-
+        print('{'+json.dumps(self.articles, sort_keys=True, indent=4, separators=(',', ': '))+'}')
 
 class Twitter:
     def __init__(self, newsid):
@@ -82,11 +77,9 @@ class Twitter:
             text = self.twitterBlob[i][7].replace("b'","'").replace('b','')
             follower_count = self.twitterBlob[i][8]
             self.tweets.append({'tweet_id': tweet_id, 'news_id': news_id, 'screen_name': screen_name, 'created_at': created_at, 'hashtags': hashtags, 'location': location, 'coordinates': coordinates, 'text': text, 'follower_count': follower_count})
-            print('{'+json.dumps(self.tweets, sort_keys=True, indent=4, separators=(',', ': '))+'}')
+        print('{'+json.dumps(self.tweets, sort_keys=True, indent=4, separators=(',', ': '))+'}')
 
 
 #Feedzilla('2015-02-13 13:56:00').print_json_response()
-
-Twitter('43').print_json_reponse()
 
 
