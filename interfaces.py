@@ -64,7 +64,7 @@ class Twitter:
         self.newsid = newsid
         self.twitterBlob = StoredQueries().get_tweet_by_id(newsid)
 
-    def print_json_reponse(self):
+    def print_json_response(self):
         import json
         for i in range(0, len(self.twitterBlob)):
             tweet_id = self.twitterBlob[i][0]
@@ -72,7 +72,7 @@ class Twitter:
             screen_name = self.twitterBlob[i][2]
             created_at = str(self.twitterBlob[i][3])
             hashtags = self.twitterBlob[i][4][:-1].replace("b'","").replace("'", '').split('|')
-            location = self.twitterBlob[i][5]
+            location = self.twitterBlob[i][5].replace("b'",'').replace("'",'')
             coordinates = self.twitterBlob[i][6]
             text = self.twitterBlob[i][7].replace("b'","'").replace('b','')
             follower_count = self.twitterBlob[i][8]
