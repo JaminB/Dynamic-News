@@ -42,7 +42,7 @@ class Generic(object):
 
 class CrawlerConfig:
     def __init__(self):
-        keywords = ['base_url', 'world_news_url', 'consumer_key', 'consumer_secret', 'access_token', 'access_token_secret' ]
+        keywords = ['base_url', 'world_news_url', 'consumer_key', 'consumer_secret', 'access_token', 'access_token_secret', 'geo_api_url', 'geo_api_key']
         ignoreWords = ['database_ip', 'database_port',  'database_name', 'database_user', 'database_password']
         self.data = Generic('crawler.conf', keywords, ignoreWords)
 
@@ -53,7 +53,7 @@ class CrawlerConfig:
 class DatabaseConfig:
     def __init__(self):
         keywords = ['database_ip', 'database_port',  'database_name', 'database_user', 'database_password']
-        ignoreList = ['base_url', 'world_news_url', 'consumer_key', 'consumer_secret', 'access_token', 'access_token_secret']
+        ignoreList = ['base_url', 'world_news_url', 'consumer_key', 'consumer_secret', 'access_token', 'access_token_secret', 'geo_api_url', 'geo_api_key']
         self.data = Generic('crawler.conf', keywords, ignoreList)
 
     def get_config(self):
