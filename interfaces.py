@@ -110,6 +110,7 @@ class Twitter:
 class Correlate:
 
     def __init__(self, dateString):
+        import math
         self.articles = Feedzilla(dateString).articles
         self.data = []
         for i in range(0, len(self.articles)):
@@ -118,7 +119,11 @@ class Correlate:
             latitude = self.articles[i]['coordinates']['lat']
             longitude = self.articles[i]['coordinates']['lng']
             tweets = Twitter(str(id)).tweets
-            locationDate = [latitude, longitude, len(tweets)]
+            if len(tweets) > 0:
+                magnitude = math.log10(len(tweets))/50
+            else:
+                magnitude = 0
+            locationDate = [latitude, longitude, magnitude]
             allSeries = [title, locationDate]
             self.data.append(allSeries)
             #print(latitude)
