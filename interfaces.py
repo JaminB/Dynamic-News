@@ -68,12 +68,6 @@ class Feedzilla:
         self.feedzillaBlob = StoredQueries().get_feedzilla_by_date(dateString)
         self.geo_api_url = self.settings['geo_api_url']
         self.geo_api_key = self.settings['geo_api_key']
-
-
-    
-    def print_json_response(self):
-        import json
-
         for i in range(0, len(self.feedzillaBlob)):
             id = self.feedzillaBlob[i][0]
             title = self.feedzillaBlob[i][1]
@@ -86,6 +80,9 @@ class Feedzilla:
             coordinates = JSON(HTTP(self.geo_api_url.replace('[location]', location).replace('[equals]', '=').replace('[key]', self.geo_api_key)).get_html()).get_json_object()['results'][0]['geometry']['location']
             tags = self.feedzillaBlob[i][8][:-1].split('|')
             self.articles.append({'id': id, 'title': title, 'source': source, 'source_url': source_url, 'summary': summary, 'publish_date': str(publish_date), 'location': location, 'coordinates': coordinates, 'tags': tags})
+
+    def print_json_response(self):
+        import json
         print('{'+json.dumps(self.articles, sort_keys=True, indent=4, separators=(',', ': '))+'}')
 
 class Twitter:
@@ -93,9 +90,6 @@ class Twitter:
         self.tweets = []
         self.newsid = newsid
         self.twitterBlob = StoredQueries().get_tweet_by_id(newsid)
-
-    def print_json_response(self):
-        import json
         for i in range(0, len(self.twitterBlob)):
             tweet_id = self.twitterBlob[i][0]
             news_id = self.twitterBlob[i][1]
@@ -107,9 +101,40 @@ class Twitter:
             text = self.twitterBlob[i][7].replace("b'","'").replace('b','')
             follower_count = self.twitterBlob[i][8]
             self.tweets.append({'tweet_id': tweet_id, 'news_id': news_id, 'screen_name': screen_name, 'created_at': created_at, 'hashtags': hashtags, 'location': location, 'coordinates': coordinates, 'text': text, 'follower_count': follower_count})
+
+    def print_json_response(self):
+        import json
         print('{'+json.dumps(self.tweets, sort_keys=True, indent=4, separators=(',', ': '))+'}')
 
 
-Feedzilla('2015-02-13 13:56:00').print_json_response()
+class Correlate:
+
+    def __init__(self, dateString):
+        self.articles = Feedzilla(dateString).articles
+        self.data = []
+        for i in range(0, len(self.articles)):
+            title = self.articles[i]['title'][:30] + '...'
+            id = self.articles[i]['id']
+            latitude = self.articles[i]['coordinates']['lat']
+            longitude = self.articles[i]['coordinates']['lng']
+            tweets = Twitter(str(id)).tweets
+            locationDate = [latitude, longitude, len(tweets)]
+            allSeries = [title, locationDate]
+            self.data.append(allSeries)
+            #print(latitude)
+            #print(str(title) + " tweets: " + str(len(tweets)))
+
+    def print_json_response(self):
+        import json
+        print('{'+json.dumps(self.data, sort_keys=True, indent=4, separators=(',', ': '))+'}')
+
+
+
+
+
+
+
+#Feedzilla('2015-02-13 14:10:00').print_json_response()
+#Correlate('2015-02-13 13:30:00').print_json_response()
 
 
