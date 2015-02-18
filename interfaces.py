@@ -126,7 +126,7 @@ class Correlate:
 
     def print_json_response(self):
         import json
-        print('{'+json.dumps(self.data, sort_keys=True, indent=4, separators=(',', ': '))+'}')
+        print(json.dumps(self.data, sort_keys=True, indent=4, separators=(',', ': ')))
 
 
 
