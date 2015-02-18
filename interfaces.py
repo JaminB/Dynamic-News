@@ -61,6 +61,7 @@ class StoredQueries:
 
 class Feedzilla:
     def __init__(self, dateString):
+        from geopy import geocoders
         import config_parser
         self.settings = config_parser.CrawlerConfig().get_config()
         self.articles = []
@@ -68,6 +69,7 @@ class Feedzilla:
         self.feedzillaBlob = StoredQueries().get_feedzilla_by_date(dateString)
         self.geo_api_url = self.settings['geo_api_url']
         self.geo_api_key = self.settings['geo_api_key']
+
         for i in range(0, len(self.feedzillaBlob)):
             id = self.feedzillaBlob[i][0]
             title = self.feedzillaBlob[i][1]
@@ -77,7 +79,9 @@ class Feedzilla:
             publish_date = self.feedzillaBlob[i][5]
             url = self.feedzillaBlob[i][6]
             location = self.feedzillaBlob[i][7]
-            coordinates = JSON(HTTP(self.geo_api_url.replace('[location]', location).replace('[equals]', '=').replace('[key]', self.geo_api_key)).get_html()).get_json_object()['results'][0]['geometry']['location']
+            g = geocoders.Nominatim()
+            nomloc = g.geocode(location)
+            coordinates = [nomloc.latitude, nomloc.longitude]
             tags = self.feedzillaBlob[i][8][:-1].split('|')
             self.articles.append({'id': id, 'title': title, 'source': source, 'source_url': source_url, 'summary': summary, 'publish_date': str(publish_date), 'location': location, 'coordinates': coordinates, 'tags': tags})
 
@@ -108,7 +112,6 @@ class Twitter:
 
 
 class Correlate:
-
     def __init__(self, dateString):
         import math
         self.articles = Feedzilla(dateString).articles
@@ -116,8 +119,8 @@ class Correlate:
         for i in range(0, len(self.articles)):
             title = self.articles[i]['title'][:30] + '...'
             id = self.articles[i]['id']
-            latitude = self.articles[i]['coordinates']['lat']
-            longitude = self.articles[i]['coordinates']['lng']
+            latitude = self.articles[i]['coordinates'][0]
+            longitude = self.articles[i]['coordinates'][1]
             tweets = Twitter(str(id)).tweets
             if len(tweets) > 0:
                 magnitude = math.log10(len(tweets))/50
