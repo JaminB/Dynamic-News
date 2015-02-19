@@ -131,8 +131,8 @@ class Correlate:
             magnitude = tweets/tweetSum
             locationData = [latitude, longitude, magnitude]
             for element in locationData:
-                locationList.append(element)
-            allSeries = ['stories', locationList]
+                self.locationList.append(element)
+        allSeries = ['stories', locationList]
         self.data.append(allSeries)
 
     def print_json_response(self):
