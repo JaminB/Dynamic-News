@@ -116,21 +116,24 @@ class Correlate:
         import math
         self.articles = Feedzilla(dateString).articles
         self.data = []
+        locationList = []
+        tweetSum = 0
         for i in range(0, len(self.articles)):
-            title = self.articles[i]['title'][:30] + '...'
             id = self.articles[i]['id']
+            tweets = len(Twitter(str(id)).tweets)
+            tweetSum += tweets
+
+        for j in range(0, len(self.articles)):
             latitude = self.articles[i]['coordinates'][0]
             longitude = self.articles[i]['coordinates'][1]
-            tweets = Twitter(str(id)).tweets
-            if len(tweets) > 0:
-                magnitude = math.log10(len(tweets))/50
-            else:
-                magnitude = 0
-            locationDate = [latitude, longitude, magnitude]
-            allSeries = [title, locationDate]
-            self.data.append(allSeries)
-            #print(latitude)
-            #print(str(title) + " tweets: " + str(len(tweets)))
+            tweets = len(Twitter(str(id)).tweets)
+            tweetSum += tweets
+            magnitude = tweets/tweetSum
+            locationData = [latitude, longitude, magnitude]
+            for element in locationData:
+                locationList.append(element)
+            allSeries = ['stories', locationList]
+        self.data.append(allSeries)
 
     def print_json_response(self):
         import json
@@ -143,6 +146,6 @@ class Correlate:
 
 
 #Feedzilla('2015-02-13 14:10:00').print_json_response()
-#Correlate('2015-02-13 13:30:00').print_json_response()
+#Correlate('2013-02-13 13:30:00').print_json_response()
 
 
