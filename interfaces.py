@@ -141,12 +141,3 @@ class Correlate:
         print(json.dumps(self.data, sort_keys=True, indent=4, separators=(',', ': ')))
 
 
-
-
-
-
-
-#Feedzilla('2015-02-13 12:10:00').print_json_response()
-#Correlate('2013-02-13 13:30:00').print_json_response()
-
-
