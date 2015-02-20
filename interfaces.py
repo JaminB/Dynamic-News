@@ -127,7 +127,6 @@ class Correlate:
             tweetSum += tweets
             if tweetSum > 0:
                 magnitude = tweets/tweetSum
-                print(magnitude)
             else:
                 magnitude = tweets
             locationData = [latitude, longitude, magnitude]
