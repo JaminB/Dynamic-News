@@ -52,8 +52,12 @@ class HTTP:
     def __init__(self, url):
         from urllib import request
         self.url = url
+        print('working...')
         response = request.urlopen(url)
+        print('done.')
+        print('decoding')
         self.html = response.read().decode('ascii', 'ignore')
+        print('done')
 
     def get_html(self):
         return self.html
@@ -92,7 +96,7 @@ class StoredQueries:
     def get_last_id(self):
         return self.queries['last_feedzilla_id']
 
-    def insert_news_article(self, title, source, source_url, summary, publish_date, url, location, tags):
+    def insert_news_article(self, title, source, source_url, summary, publish_date, url, location, tags, latitude='', longitude=''):
         if MySql(self.get_last_id()).get_result()[0][0] == None:
             id = '0'
         else:
@@ -106,7 +110,9 @@ class StoredQueries:
             .replace('[publish_date]',publish_date)\
             .replace('[url]',url)\
             .replace('[location]', location)\
-            .replace('[tags]', tags)).get_result())
+            .replace('[tags]', tags)).get_result())\
+            .replace('[latitude]', str(latitude))\
+            .replace('[longitude]', str(longitude))
 
     def insert_tweet(self, twitter_id,  id, screen_name, created_at, hashtags, location, coordinates, text, follower_count):
         return str(MySql(self.queries['insert_tweet']\
@@ -124,40 +130,53 @@ class StoredQueries:
         return MySql(str(self.queries['get_relevant_article_tags']).replace('[date]', mindatetime)).get_result()
 
 
-    def check_continent(self, continent):
+    def is_continent(self, continent):
         if len(MySql(str(self.queries['get_news_continent']).replace('[continent]', continent).replace('[equals]', '=')).get_result()) != 0:
             return True
         return False
 
-    def check_country(self, country):
+    def is_country(self, country):
         if len(MySql(str(self.queries['get_news_country']).replace('[country]', country).replace('[equals]', '=')).get_result()) != 0:
             return True
         return False
 
-    def check_article_adj(self, article):
+    def is_a_an_the(self, article):
         if len(MySql(str(self.queries['get_article_adj']).replace('[article]', article).replace('[equals]', '=')).get_result()) != 0:
             return True
         return False
 
-    def check_pronoun(self, pronoun):
+    def is_pronoun(self, pronoun):
         if len(MySql(str(self.queries['get_pronoun']).replace('[pronoun]', pronoun).replace('[equals]', '=')).get_result()) != 0:
             return True
         return False
 
-    def check_preposition(self, verb):
+    def is_preposition(self, verb):
         if len(MySql(str(self.queries['get_preposition']).replace('[preposition]', verb).replace('[equals]', '=')).get_result()) != 0:
             return True
         return False
 
-    def check_verb(self, verb):
+    def is_verb(self, verb):
         if len(MySql(str(self.queries['get_verb']).replace('[verb]', verb).replace('[equals]', '=')).get_result()) != 0:
             return True
         return False
 
-    def check_conjunction(self, conjunction):
+    def is_conjunction(self, conjunction):
         if len(MySql(str(self.queries['get_conjunction']).replace('[conjunction]', conjunction).replace('[equals]', '=')).get_result()) != 0:
             return True
         return False
+
+    def does_article_have_coordinates(self, location):
+        result = MySql(str(self.queries['get_feedzilla_latitude_by_location']).replace('[equals]','=').replace('[location]',location)).get_result()
+        if result == []:
+            return False
+        return True
+
+    def does_article_exist(self, title):
+        try:
+            MySql(str(self.queries['get_feedzilla_id_by_title']).replace('[equals]','=').replace('[title]',title)).get_result()[0][0]
+        except IndexError:
+            return False
+        return True
 
 
 
@@ -177,6 +196,7 @@ class JSON:
 class NewsArticle:
     """Object to store news articles in"""
     def __init__(self, publish_date, source, source_url, summary, title, url):
+        from pymysql import escape_string
         self.publishDate = publish_date
         self.source = source
         self.sourceURL = source_url
@@ -185,7 +205,11 @@ class NewsArticle:
         self.url = url
         self.location = ''
         self.tags = ''
-        self._analyze_summary()
+        self.latitude = '-1'
+        self.longitude = '-1'
+        if not StoredQueries().does_article_exist(escape_string(self.title)):
+            self._analyze_summary()
+            self._derive_coordinates()
 
     def _rank_word(self, word):
         score = 0
@@ -212,19 +236,19 @@ class NewsArticle:
             for word in miniTextBlock:
                 words.append(word)
         for word in words:
-            if not queries.check_article_adj(word):
-                if not queries.check_pronoun(word):
-                    if not queries.check_preposition(word):
-                        if not queries.check_conjunction(word):
-                            if not queries.check_continent(word):
-                                if not queries.check_country(word):
+            if not queries.is_a_an_the(word):
+                if not queries.is_pronoun(word):
+                    if not queries.is_preposition(word):
+                        if not queries.is_conjunction(word):
+                            if not queries.is_continent(word):
+                                if not queries.is_country(word):
                                         tags.append((word, self._rank_word(word)))
                                 else:
                                     countries.append(word)
                             else:
                                 continents.append(word)
 
-        tags.sort(key=operator.itemgetter(1), reverse = True)
+        tags.sort(key=operator.itemgetter(1), reverse=True)
         for tag in tags:
             if tag[0] not in selectTags:
                 if len(selectTags) < 2:
@@ -236,6 +260,18 @@ class NewsArticle:
             self.location = continents[0]
         if len(countries) != 0:
             self.location = countries[0]
+
+    def _derive_coordinates(self):
+        try:
+            geo_api_url = self.settings['geo_api_url']
+            geo_api_key = self.settings['geo_api_key']
+            coordinates = JSON(HTTP(geo_api_url.replace('[location]', self.get_location()).replace('[equals]', '=').replace('[key]', geo_api_key)).get_html()).get_json_object()['results'][0]['geometry']['location']
+            self.latitude = coordinates[0]
+            print(self.latitude)
+            self.longitude = coordinates[1]
+        except:
+            return
+
 
     def get_publish_date(self):
         return self.publishDate
@@ -260,6 +296,12 @@ class NewsArticle:
 
     def get_tags(self):
         return self.tags
+
+    def get_latitude(self):
+        return self.latitude
+
+    def get_longitude(self):
+        return self.longitude
 
 
 
@@ -298,16 +340,18 @@ class NewsGrabber:
         return self.articles
 
     def store_articles(self):
-        from pymysql import escape_string
-        from pymysql import err
+        from pymysql import escape_string, err
         for article in self.cachedArticles:
             try:
+
                 StoredQueries().insert_news_article(escape_string(article.get_title()),
                                            escape_string(article.get_source()),
                                            article.get_source_url(),
                                            escape_string(article.get_summary().replace('\n',' ')),
                                            feedzilla_date_convert(article.get_publish_date()),
-                                           article.get_url(),article.get_location(), article.get_tags())
+                                           article.get_url(),
+                                           article.get_location(),
+                                           article.get_tags())
                 print("ADDING NEWS ARTICLE: " + article.get_publish_date() + ', ' + article.get_title()[0:30] + ', ' + article.get_location() + "")
             except err.IntegrityError:
                 print("DUPLICATE NEWS ARTICLE: '" + article.get_publish_date() + ', ' + article.get_title()[0:30] + ", " + article.get_location())
@@ -398,8 +442,7 @@ class TweetGrabber():
         return tweets
 
     def store_tweets(self):
-        from pymysql import escape_string
-        from pymysql import err
+        from pymysql import escape_string, err
         for tweet in self.cachedTweets:
             hashtags = ''
             for hashtag in tweet.get_hashtags():
@@ -456,6 +499,7 @@ def run(tolerence):
 #TweetGrabber(['obama', 'china'], 0, '2015-02-16 00:00:00').store_tweets()
 
 #print(first_date_larger(get_current_date_time_minus(-5), get_current_date_time()))
-run(5000)
-
+run(11000)
+import pymysql
+#print(StoredQueries().does_article_exist(pymysql.escape_string('Zimbabwe: Forcing Obama\'s Hand On Zim and Cuba (All Africa)')))
 

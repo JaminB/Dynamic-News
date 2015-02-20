@@ -1,4 +1,4 @@
-#DROP DATABASE dynamic_news;
+DROP DATABASE dynamic_news;
 CREATE DATABASE dynamic_news;
 USE dynamic_news;
 
@@ -12,6 +12,8 @@ CREATE TABLE feedzilla(
   	url VARCHAR(200),
   	location VARCHAR(200),
   	tags VARCHAR(300),
+  	latitude VARCHAR(200),
+  	longitude VARCHAR(200),
 	PRIMARY KEY (id),
 	UNIQUE KEY (title)
 );

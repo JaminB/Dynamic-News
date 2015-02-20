@@ -125,13 +125,18 @@ class Correlate:
 
         for j in range(0, len(self.articles)):
             latitude = self.articles[i]['coordinates'][0]
+            print (latitude)
             longitude = self.articles[i]['coordinates'][1]
             tweets = len(Twitter(str(id)).tweets)
+            print(self.articles[j]['title'])
             tweetSum += tweets
-            magnitude = tweets/tweetSum
+            if tweetSum > 0:
+                magnitude = tweets/tweetSum
+            else:
+                magnitude = tweets
             locationData = [latitude, longitude, magnitude]
             for element in locationData:
-                self.locationList.append(element)
+                locationList.append(element)
         allSeries = ['stories', locationList]
         self.data.append(allSeries)
 
@@ -146,6 +151,6 @@ class Correlate:
 
 
 #Feedzilla('2015-02-13 14:10:00').print_json_response()
-#Correlate('2013-02-13 13:30:00').print_json_response()
+Correlate('2013-02-13 13:30:00')
 
 

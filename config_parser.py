@@ -42,8 +42,19 @@ class Generic(object):
 
 class CrawlerConfig:
     def __init__(self):
-        keywords = ['base_url', 'world_news_url', 'consumer_key', 'consumer_secret', 'access_token', 'access_token_secret', 'geo_api_url', 'geo_api_key']
-        ignoreWords = ['database_ip', 'database_port',  'database_name', 'database_user', 'database_password']
+        keywords = ['base_url',
+                    'world_news_url',
+                    'consumer_key',
+                    'consumer_secret',
+                    'access_token',
+                    'access_token_secret',
+                    'geo_api_url',
+                    'geo_api_key']
+        ignoreWords = ['database_ip',
+                       'database_port',
+                       'database_name',
+                       'database_user',
+                       'database_password']
         self.data = Generic('crawler.conf', keywords, ignoreWords)
 
 
@@ -52,8 +63,21 @@ class CrawlerConfig:
 
 class DatabaseConfig:
     def __init__(self):
-        keywords = ['database_ip', 'database_port',  'database_name', 'database_user', 'database_password']
-        ignoreList = ['base_url', 'world_news_url', 'consumer_key', 'consumer_secret', 'access_token', 'access_token_secret', 'geo_api_url', 'geo_api_key']
+        keywords = ['database_ip',
+                    'database_port',
+                    'database_name',
+                    'database_user',
+                    'database_password',
+                    'get_feedzilla_latitude_by_location']
+        ignoreList = \
+            ['base_url',
+             'world_news_url',
+             'consumer_key',
+             'consumer_secret',
+             'access_token',
+             'access_token_secret',
+             'geo_api_url',
+             'geo_api_key']
         self.data = Generic('crawler.conf', keywords, ignoreList)
 
     def get_config(self):
@@ -61,7 +85,22 @@ class DatabaseConfig:
 
 class DatabaseQueries:
     def __init__(self):
-        keywords = ['last_feedzilla_id','databases', 'insert_news_article', 'get_news_continent', 'get_news_country', 'get_relevant_article_tags', 'get_verb', 'get_preposition', 'get_pronoun', 'get_article_adj', 'get_conjunction', 'insert_tweet', 'get_feedzilla_by_publish_date', 'get_twitter_by_id']
+        keywords = ['last_feedzilla_id',
+                    'databases',
+                    'insert_news_article',
+                    'get_news_continent',
+                    'get_news_country',
+                    'get_relevant_article_tags',
+                    'get_verb',
+                    'get_preposition',
+                    'get_pronoun',
+                    'get_article_adj',
+                    'get_conjunction',
+                    'insert_tweet',
+                    'get_feedzilla_by_publish_date',
+                    'get_feedzilla_latitude_by_location',
+                    'get_feedzilla_id_by_title',
+                    'get_twitter_by_id']
         ignoreList = []
         self.data = Generic('queries.conf', keywords, ignoreList)
 
