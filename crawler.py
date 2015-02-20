@@ -52,12 +52,8 @@ class HTTP:
     def __init__(self, url):
         from urllib import request
         self.url = url
-        print('working...')
         response = request.urlopen(url)
-        print('done.')
-        print('decoding')
         self.html = response.read().decode('ascii', 'ignore')
-        print('done')
 
     def get_html(self):
         return self.html
@@ -101,6 +97,7 @@ class StoredQueries:
             id = '0'
         else:
             id = str(int(MySql(self.get_last_id()).get_result()[0][0]) + 1) #gets the last primary key id in the database, and adds one
+
         return str(MySql(self.queries['insert_news_article']\
             .replace('[id]',id)\
             .replace('[title]',title)\
@@ -110,9 +107,9 @@ class StoredQueries:
             .replace('[publish_date]',publish_date)\
             .replace('[url]',url)\
             .replace('[location]', location)\
-            .replace('[tags]', tags)).get_result())\
+            .replace('[tags]', tags)\
             .replace('[latitude]', str(latitude))\
-            .replace('[longitude]', str(longitude))
+            .replace('[longitude]', str(longitude))).get_result())
 
     def insert_tweet(self, twitter_id,  id, screen_name, created_at, hashtags, location, coordinates, text, follower_count):
         return str(MySql(self.queries['insert_tweet']\
@@ -197,6 +194,8 @@ class NewsArticle:
     """Object to store news articles in"""
     def __init__(self, publish_date, source, source_url, summary, title, url):
         from pymysql import escape_string
+        import config_parser
+        self.settings = config_parser.CrawlerConfig().get_config()
         self.publishDate = publish_date
         self.source = source
         self.sourceURL = source_url
@@ -223,6 +222,7 @@ class NewsArticle:
 
     def _analyze_summary(self):
         import re, operator
+        print('\nAnalyzing Article Summary and extracting tags...')
         words = []
         cities = []
         countries = []
@@ -262,13 +262,17 @@ class NewsArticle:
             self.location = countries[0]
 
     def _derive_coordinates(self):
+        geo_api_url = self.settings['geo_api_url']
+        geo_api_key = self.settings['geo_api_key']
+        print('Deriving coordinates from location: ' + self.get_location(), end='')
         try:
-            geo_api_url = self.settings['geo_api_url']
-            geo_api_key = self.settings['geo_api_key']
             coordinates = JSON(HTTP(geo_api_url.replace('[location]', self.get_location()).replace('[equals]', '=').replace('[key]', geo_api_key)).get_html()).get_json_object()['results'][0]['geometry']['location']
-            self.latitude = coordinates[0]
-            print(self.latitude)
-            self.longitude = coordinates[1]
+        except:
+            print,('...Failure')
+        try:
+            self.latitude = coordinates['lat']
+            self.longitude = coordinates['lng']
+            print('...Success')
         except:
             return
 
@@ -343,7 +347,6 @@ class NewsGrabber:
         from pymysql import escape_string, err
         for article in self.cachedArticles:
             try:
-
                 StoredQueries().insert_news_article(escape_string(article.get_title()),
                                            escape_string(article.get_source()),
                                            article.get_source_url(),
@@ -351,7 +354,10 @@ class NewsGrabber:
                                            feedzilla_date_convert(article.get_publish_date()),
                                            article.get_url(),
                                            article.get_location(),
-                                           article.get_tags())
+                                           article.get_tags(),
+                                           article.get_latitude(),
+                                           article.get_longitude()
+                                           )
                 print("ADDING NEWS ARTICLE: " + article.get_publish_date() + ', ' + article.get_title()[0:30] + ', ' + article.get_location() + "")
             except err.IntegrityError:
                 print("DUPLICATE NEWS ARTICLE: '" + article.get_publish_date() + ', ' + article.get_title()[0:30] + ", " + article.get_location())
@@ -491,15 +497,4 @@ def run(tolerence):
                 print('Trying again...')
 
 
-
-#NewsGrabber().store_articles()
-#print(StoredQueries().get_relevant_article_tags(str(get_date_time_minus(get_current_date_time(),4320 ))))
-#print(StoredQueries().insert_tweet('0', '0', 'screen_name', '01/02/2015', 'hashtags', 'location', 'coordinates', 'text', '2'))
-
-#TweetGrabber(['obama', 'china'], 0, '2015-02-16 00:00:00').store_tweets()
-
-#print(first_date_larger(get_current_date_time_minus(-5), get_current_date_time()))
 run(11000)
-import pymysql
-#print(StoredQueries().does_article_exist(pymysql.escape_string('Zimbabwe: Forcing Obama\'s Hand On Zim and Cuba (All Africa)')))
-

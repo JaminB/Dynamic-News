@@ -67,8 +67,6 @@ class Feedzilla:
         self.articles = []
         self.dateString = dateString
         self.feedzillaBlob = StoredQueries().get_feedzilla_by_date(dateString)
-        self.geo_api_url = self.settings['geo_api_url']
-        self.geo_api_key = self.settings['geo_api_key']
 
         for i in range(0, len(self.feedzillaBlob)):
             id = self.feedzillaBlob[i][0]
@@ -79,10 +77,8 @@ class Feedzilla:
             publish_date = self.feedzillaBlob[i][5]
             url = self.feedzillaBlob[i][6]
             location = self.feedzillaBlob[i][7]
-            g = geocoders.Nominatim()
-            nomloc = g.geocode(location)
-            coordinates = [nomloc.latitude, nomloc.longitude]
             tags = self.feedzillaBlob[i][8][:-1].split('|')
+            coordinates = [self.feedzillaBlob[i][9], self.feedzillaBlob[i][10]]
             self.articles.append({'id': id, 'title': title, 'source': source, 'source_url': source_url, 'summary': summary, 'publish_date': str(publish_date), 'location': location, 'coordinates': coordinates, 'tags': tags})
 
     def print_json_response(self):
@@ -124,11 +120,9 @@ class Correlate:
             tweetSum += tweets
 
         for j in range(0, len(self.articles)):
-            latitude = self.articles[i]['coordinates'][0]
-            print (latitude)
-            longitude = self.articles[i]['coordinates'][1]
+            latitude = self.articles[j]['coordinates'][0]
+            longitude = self.articles[j]['coordinates'][1]
             tweets = len(Twitter(str(id)).tweets)
-            print(self.articles[j]['title'])
             tweetSum += tweets
             if tweetSum > 0:
                 magnitude = tweets/tweetSum
@@ -150,7 +144,7 @@ class Correlate:
 
 
 
-#Feedzilla('2015-02-13 14:10:00').print_json_response()
+#Feedzilla('2015-02-13 12:10:00').print_json_response()
 Correlate('2013-02-13 13:30:00')
 
 
