@@ -129,7 +129,7 @@ class Correlate:
                 magnitude = tweets/tweetSum
             else:
                 magnitude = tweets
-            locationData = [round(latitude, 2), round(longitude, 2), magnitude]
+            locationData = [round(float(latitude), 2), round(float(longitude), 2), magnitude]
             for element in locationData:
                 locationList.append(element)
         allSeries = ['stories', locationList]
