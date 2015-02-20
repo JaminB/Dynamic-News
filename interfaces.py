@@ -147,6 +147,6 @@ class Correlate:
 
 
 #Feedzilla('2015-02-13 12:10:00').print_json_response()
-Correlate('2013-02-13 13:30:00').print_json_response()
+#Correlate('2013-02-13 13:30:00').print_json_response()
 
 
