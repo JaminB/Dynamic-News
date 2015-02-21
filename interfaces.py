@@ -1,5 +1,10 @@
 __author__ = 'jamin'
 
+def get_current_date_time_minus(min):
+    from datetime import datetime, timedelta
+    now = datetime.now() - timedelta(minutes=min)
+    return str(now)[0: str(now).index('.')]
+
 class MySql:
     """Super Tiny database connector requires pymysql to be installed
         use 'pip3 install pymysql' to install"""
@@ -60,13 +65,15 @@ class StoredQueries:
         return MySql(str(self.queries['get_twitter_by_id']).replace('[id]', newsid).replace('[equals]', '=')).get_result()
 
 class Feedzilla:
-    def __init__(self, dateString):
+    def __init__(self, days=0, hours=0, minutes=0):
         from geopy import geocoders
         import config_parser
         self.settings = config_parser.CrawlerConfig().get_config()
         self.articles = []
-        self.dateString = dateString
+        tolerence = (days * 1440) + (hours * 60) + minutes
+        dateString = get_current_date_time_minus(tolerence)
         self.feedzillaBlob = StoredQueries().get_feedzilla_by_date(dateString)
+
 
         for i in range(0, len(self.feedzillaBlob)):
             id = self.feedzillaBlob[i][0]
@@ -108,9 +115,11 @@ class Twitter:
 
 
 class Correlate:
-    def __init__(self, dateString):
+    def __init__(self, days=0, hours=0, minutes=0):
         import math
-        self.articles = Feedzilla(dateString).articles
+        tolerence = (days * 1440) + (hours * 60) + minutes
+        dateString = get_current_date_time_minus(tolerence)
+        self.articles = Feedzilla(days=days, hours=hours, minutes=minutes).articles
         self.data = []
         locationList = []
         tweetSum = 0
@@ -140,3 +149,5 @@ class Correlate:
         print(json.dumps(self.data, sort_keys=True, indent=4, separators=(',', ': ')))
 
 
+#Correlate(days=15).print_json_response()
+#Feedzilla(days=30).print_json_response()

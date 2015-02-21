@@ -470,9 +470,10 @@ class TweetGrabber():
 
 
 
-def run(tolerence):
+def run(days=0, hours=0, minutes=0):
     from time import sleep
     from TwitterSearch import TwitterSearchException
+    tolerence = (days * 1440) + (hours * 60) + minutes
     while True:
         print('Storing News Articles...')
         print('Only associating articles to tweets where the article publish date is greater than: ' + str(get_date_time_minus(get_current_date_time(), tolerence)))
@@ -497,4 +498,4 @@ def run(tolerence):
                 print('Trying again...')
 
 
-run(11000)
+run(days=7, hours=24)
