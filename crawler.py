@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 __author__ = 'Jamin Becker'
 
 def feedzilla_date_convert(dateString):
@@ -470,10 +471,23 @@ class TweetGrabber():
 
 
 
-def run(days=0, hours=0, minutes=0):
+def run():
+
     from time import sleep
     from TwitterSearch import TwitterSearchException
-    tolerence = (days * 1440) + (hours * 60) + minutes
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-dd", "--days", help="Associate articles within <days>", type=int)
+    parser.add_argument("-hh", "--hours", help="Associate articles within <hours>", type=int)
+    parser.add_argument("-mm", "--minutes", help="Associate articles within <minutes>", type=int)
+    args = parser.parse_args()
+    if args.minutes == None:
+        args.minutes = 0
+    if args.days == None:
+        args.days = 0
+    if args.hours == None:
+        args.hours = 0
+    tolerence = (int(args.days) * 1440) + (int(args.hours) * 60) + int(args.minutes)
     while True:
         print('Storing News Articles...')
         print('Only associating articles to tweets where the article publish date is greater than: ' + str(get_date_time_minus(get_current_date_time(), tolerence)))
@@ -498,4 +512,4 @@ def run(days=0, hours=0, minutes=0):
                 print('Trying again...')
 
 
-run(days=7, hours=24)
+run()
