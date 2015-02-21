@@ -24,6 +24,6 @@ def GET():
 			m = int(form['minutes'].value)
 		except:
 			m = 0
-		interfaces.Correlate(days=d, hours=h, minutes=m).print_json_response()
+		interfaces.Correlate(days=d, hours=h, minutes=m).print_json_response(dataoutput=2)
 
 GET()
