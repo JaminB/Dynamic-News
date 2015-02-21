@@ -120,7 +120,8 @@ class Correlate:
         tolerence = (days * 1440) + (hours * 60) + minutes
         dateString = get_current_date_time_minus(tolerence)
         self.articles = Feedzilla(days=days, hours=hours, minutes=minutes).articles
-        self.data = []
+        self.globeData = []
+        self.articleData = []
         locationList = []
         tweetSum = 0
         for i in range(0, len(self.articles)):
@@ -129,9 +130,11 @@ class Correlate:
             tweetSum += tweets
 
         for j in range(0, len(self.articles)):
+            title = self.articles[j]['title']
             latitude = self.articles[j]['coordinates'][0]
             longitude = self.articles[j]['coordinates'][1]
             id = self.articles[j]['id']
+            location = self.articles[j]['location']
             tweets = len(Twitter(str(id)).tweets)
             tweetSum += tweets
             if tweetSum > 0:
@@ -139,15 +142,23 @@ class Correlate:
             else:
                 magnitude = tweets
             locationData = [round(float(latitude), 2), round(float(longitude), 2), magnitude]
+            self.articleData.append({'title':title[0:50], 'number_of_associated_tweets':tweets, 'location':location})
+
             for element in locationData:
                 locationList.append(element)
-        allSeries = ['stories', locationList]
-        self.data.append(allSeries)
 
-    def print_json_response(self):
+        locationData = ['stories', locationList]
+
+        self.globeData.append(locationData)
+        
+
+    def print_json_response(self,dataoutput=1):
         import json
-        print(json.dumps(self.data, sort_keys=True, indent=4, separators=(',', ': ')))
+        if dataoutput == 1:
+            print(json.dumps(self.globeData, sort_keys=True, indent=4, separators=(',', ': ')))
+        if dataoutput == 2:
+            print(json.dumps(self.articleData, indent=4, separators=(',', ': ')))
 
 
-#Correlate(days=15).print_json_response()
+#Correlate(days=15).print_json_response(dataoutput=2)
 #Feedzilla(days=30).print_json_response()
