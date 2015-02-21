@@ -1,0 +1,29 @@
+#!/usr/bin/python3
+__author__ = 'jamin'
+import sys
+import cgi
+def GET():
+	sys.path.append('../')
+	import interfaces
+	form = cgi.FieldStorage()
+	print("Content-type:text/json\r\n\r\n")
+	if 'days' not in form \
+	    and'hours' not in form\
+	    and 'minutes' not in form:
+	    print('{ "error": "Please fill in days/hours/minutes field." }')
+	else:
+		try:
+			d = int(form['days'].value)
+		except:
+			d = 0
+		try:
+			h = int(form['hours'].value)
+		except:
+			h = 0
+		try:
+			m = int(form['minutes'].value)
+		except:
+			m = 0
+		interfaces.Correlate(days=d, hours=h, minutes=m).print_json_response()
+
+GET()
