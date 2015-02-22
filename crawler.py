@@ -518,6 +518,7 @@ def run():
                 print('Sleeping...Twitter API query quota reached.')
                 sleep(5)
                 print('Checking for new articles while we wait...')
+                sleep(1)
                 NewsGrabber().store_articles()
                 sleep(10)
                 print('Trying again...')

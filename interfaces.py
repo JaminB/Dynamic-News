@@ -139,7 +139,7 @@ class Correlate:
             tweets = len(Twitter(str(id)).tweets)
             tweetSum += tweets
             if tweetSum > 0:
-                magnitude = tweets/tweetSum * 100
+                magnitude = tweets/tweetSum 
             else:
                 magnitude = tweets
             locationData = [round(float(latitude), 2), round(float(longitude), 2), magnitude]
