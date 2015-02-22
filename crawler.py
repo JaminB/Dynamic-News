@@ -493,8 +493,13 @@ def run():
         print('Only associating articles to tweets where the article publish date is greater than: ' + str(get_date_time_minus(get_current_date_time(), tolerence)))
         NewsGrabber().store_articles()
         idsTagsDatesLocations = StoredQueries().get_relevant_article_tags(str(get_date_time_minus(get_current_date_time(), tolerence)))
-        i=0
+        pauseIteration = False
+        stepBack = 0
         for i in range(0, len(idsTagsDatesLocations)):
+            print('Pause? ' + str(pauseIteration))
+            if pauseIteration:
+                i-=stepBack
+                print(i)
             id = idsTagsDatesLocations[i][0]
             tags = str(idsTagsDatesLocations[i][1]).split('|')
             for j in range(0, len(tags)):
@@ -507,10 +512,13 @@ def run():
             print('Searching Twitter for... article id:' + str(id) + ', using tags: ' + str(tags))
             try:
                 TweetGrabber(tags, id, publishDate).store_tweets()
+                pauseIteration = False
+                stepBack = 0
             except TwitterSearchException:
-                i-=1 #we want to continue where we left off searching with the last tweet
+                pauseIteration = True
+                stepBack += 1
                 print('Sleeping...Twitter API query quota reached.')
-                sleep(60)
+                sleep(10)
                 print('Trying again...')
 
 
