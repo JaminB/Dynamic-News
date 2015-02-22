@@ -496,10 +496,8 @@ def run():
         pauseIteration = False
         stepBack = 0
         for i in range(0, len(idsTagsDatesLocations)):
-            print('Pause? ' + str(pauseIteration))
             if pauseIteration:
                 i-=stepBack
-                print(i)
             id = idsTagsDatesLocations[i][0]
             tags = str(idsTagsDatesLocations[i][1]).split('|')
             for j in range(0, len(tags)):
@@ -518,6 +516,9 @@ def run():
                 pauseIteration = True
                 stepBack += 1
                 print('Sleeping...Twitter API query quota reached.')
+                sleep(5)
+                print('Checking for new articles while we wait...')
+                NewsGrabber().store_articles()
                 sleep(10)
                 print('Trying again...')
 
