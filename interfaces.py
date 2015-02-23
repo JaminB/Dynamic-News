@@ -139,7 +139,7 @@ class Correlate:
             tweets = len(Twitter(str(id)).tweets)
             tweetSum += tweets
             if tweetSum > 0:
-                magnitude = tweets/tweetSum 
+                magnitude = tweets/tweetSum
             else:
                 magnitude = tweets
             locationData = [round(float(latitude), 2), round(float(longitude), 2), magnitude]
@@ -158,7 +158,7 @@ class Correlate:
         if dataoutput == 1:
             print(json.dumps(self.globeData, sort_keys=True, indent=4, separators=(',', ': ')))
         if dataoutput == 2:
-            print(json.dumps(self.articleData, indent=4, separators=(',', ': ')))
+            print(json.dumps(self.articleData, indent=4,sort_keys=True, separators=(',', ': ')))
 
 
 #Correlate(minutes=0).print_json_response(dataoutput=2)
