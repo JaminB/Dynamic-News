@@ -131,6 +131,7 @@ class Correlate:
 
         for j in range(0, len(self.articles)):
             title = self.articles[j]['title']
+            print (self.articles[j])
             publishDate = self.articles[j]['publish_date']
             latitude = self.articles[j]['coordinates'][0]
             longitude = self.articles[j]['coordinates'][1]
@@ -143,7 +144,7 @@ class Correlate:
             else:
                 magnitude = tweets
             locationData = [round(float(latitude), 2), round(float(longitude), 2), magnitude]
-            self.articleData.append({'title': title[0:50], 'number_of_associated_tweets': tweets, 'location': location, 'publish_date': publishDate})
+            self.articleData.append({'title': title[0:100], 'number_of_associated_tweets': tweets, 'location': location, 'publish_date': publishDate})
             for element in locationData:
                 locationList.append(element)
         from operator import itemgetter
@@ -169,5 +170,5 @@ class Correlate:
 
 
 
-#Correlate(days=15, sort_articles=True).print_json_response(dataoutput=2, top=1)
+Correlate(days=15, sort_articles=True).print_json_response(dataoutput=2, top=1)
 #Feedzilla(days=30).print_json_response()
