@@ -131,7 +131,6 @@ class Correlate:
 
         for j in range(0, len(self.articles)):
             title = self.articles[j]['title']
-            print (self.articles[j])
             publishDate = self.articles[j]['publish_date']
             latitude = self.articles[j]['coordinates'][0]
             longitude = self.articles[j]['coordinates'][1]
