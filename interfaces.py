@@ -147,7 +147,8 @@ class Correlate:
             for element in locationData:
                 locationList.append(element)
         from operator import itemgetter
-        self.articleData = sorted(self.articleData, key=itemgetter('number_of_associated_tweets'), reverse=True)
+        if sort_articles:
+            self.articleData = sorted(self.articleData, key=itemgetter('number_of_associated_tweets'), reverse=True)
         locationData = ['stories', locationList]
         self.globeData.append(locationData)
         
