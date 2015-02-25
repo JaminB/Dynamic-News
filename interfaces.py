@@ -115,7 +115,7 @@ class Twitter:
 
 
 class Correlate:
-    def __init__(self, days=0, hours=0, minutes=0):
+    def __init__(self, days=0, hours=0, minutes=0, sort_articles=False):
         import math
         tolerence = (days * 1440) + (hours * 60) + minutes
         dateString = get_current_date_time_minus(tolerence)
@@ -144,22 +144,29 @@ class Correlate:
                 magnitude = tweets
             locationData = [round(float(latitude), 2), round(float(longitude), 2), magnitude]
             self.articleData.append({'title': title[0:50], 'number_of_associated_tweets': tweets, 'location': location, 'publish_date': publishDate})
-
             for element in locationData:
                 locationList.append(element)
-
+        from operator import itemgetter
+        self.articleData = sorted(self.articleData, key=itemgetter('number_of_associated_tweets'), reverse=True)
         locationData = ['stories', locationList]
-
         self.globeData.append(locationData)
         
 
-    def print_json_response(self,dataoutput=1):
+    def print_json_response(self,dataoutput=1, top=0):
         import json
+        from operator import itemgetter
         if dataoutput == 1:
             print(json.dumps(self.globeData, sort_keys=True, indent=4, separators=(',', ': ')))
         if dataoutput == 2:
-            print(json.dumps(self.articleData, indent=4,sort_keys=True, separators=(',', ': ')))
+            if top !=0:
+                newarticledata = []
+                for i in range(0, top):
+                    newarticledata.append(self.articleData[i])
+                print(json.dumps(newarticledata, indent=4, sort_keys=True, separators=(',', ': ')))
+            else:
+                print(json.dumps(self.articleData, indent=4, sort_keys=True, separators=(',', ': ')))
 
 
-#Correlate(minutes=0).print_json_response(dataoutput=2)
+
+Correlate(days=15, sort_articles=True).print_json_response(dataoutput=2, top=1)
 #Feedzilla(days=30).print_json_response()
