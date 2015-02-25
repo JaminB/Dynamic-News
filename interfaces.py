@@ -123,10 +123,16 @@ class Correlate:
         self.globeData = []
         self.articleData = []
         locationList = []
+        self.tweetText = []
+        self.tweetScreenNames = []
         tweetSum = 0
         for i in range(0, len(self.articles)):
             id = self.articles[i]['id']
-            tweets = len(Twitter(str(id)).tweets)
+            tweetData = Twitter(str(id)).tweets
+            tweets = len(tweetData)
+            for j in range(0, tweets):
+                self.tweetText.append(tweetData[j]['text'])
+                self.tweetScreenNames.append(tweetData[j]['screen_name'])
             tweetSum += tweets
 
         for j in range(0, len(self.articles)):
@@ -166,8 +172,13 @@ class Correlate:
                 print(json.dumps(newarticledata, indent=4, sort_keys=True, separators=(',', ': ')))
             else:
                 print(json.dumps(self.articleData, indent=4, sort_keys=True, separators=(',', ': ')))
+        if dataoutput == 3:
+            import random
+            randomIndex = random.randint(0, len(self.tweetText))
+            print(json.dumps([{'screen_name':self.tweetScreenNames[randomIndex], 'text': self.tweetText[randomIndex]}], indent=4, sort_keys=True, separators=(',', ': ')))
 
 
 
-Correlate(days=15, sort_articles=True).print_json_response(dataoutput=2, top=1)
+
+#Correlate(days=15, sort_articles=True).print_json_response(dataoutput=3, top=1)
 #Feedzilla(days=30).print_json_response()
