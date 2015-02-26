@@ -53,10 +53,12 @@ class HTTP:
     def __init__(self, url):
         from urllib import request
         self.url = url
+        print('--Downloading Data from - ' + self.url + '--')
         response = request.urlopen(url)
         self.html = response.read().decode('ascii', 'ignore')
 
     def get_html(self):
+        print('--Finished--')
         return self.html
 
 
@@ -346,6 +348,7 @@ class NewsGrabber:
 
     def store_articles(self):
         from pymysql import escape_string, err
+        skipCount = 0
         for article in self.cachedArticles:
             try:
                 StoredQueries().insert_news_article(escape_string(article.get_title()),
@@ -361,8 +364,9 @@ class NewsGrabber:
                                            )
                 print("ADDING NEWS ARTICLE: " + article.get_publish_date() + ', ' + article.get_title()[0:30] + ', ' + article.get_location() + "")
             except err.IntegrityError:
-                print("DUPLICATE NEWS ARTICLE: '" + article.get_publish_date() + ', ' + article.get_title()[0:30] + ", " + article.get_location())
-
+                skipCount+=1
+                #print("DUPLICATE NEWS ARTICLE: '" + article.get_publish_date() + ', ' + article.get_title()[0:30] + ", " + article.get_location())
+        print(str(skipCount) + " articles skipped as they already exist in the database.")
 class Tweet():
     def __init__(self, twitter_id, news_id, screen_name, created_at, hashtags, location, coordinates, text, followers_count):
         self.twitter_id = twitter_id
@@ -450,6 +454,7 @@ class TweetGrabber():
 
     def store_tweets(self):
         from pymysql import escape_string, err
+        skipCount = 0
         for tweet in self.cachedTweets:
             hashtags = ''
             for hashtag in tweet.get_hashtags():
@@ -467,10 +472,11 @@ class TweetGrabber():
                                          str(tweet.get_follower_count()))
                 print("ASSOCIATING TWEET TO NEWS ARTICLE(" + str(tweet.get_news_id()) + '): ' + str(tweet.get_created_date()[0:30]) + ', ' + str(tweet.get_twitter_id()) + ', ' + tweet.get_screen_name() + ', ' + tweet.get_location())
             except err.IntegrityError:
+                    skipCount+=1
                     print("DUPLICATE TWEET: " + str(tweet.get_created_date()) + ', ' + str(tweet.get_twitter_id()) + ', ' + tweet.get_location())
 
 
-
+        print(str(skipCount) + " tweets skipped as they already exist in the database.")
 def run():
 
     from time import sleep

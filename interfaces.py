@@ -180,5 +180,5 @@ class Correlate:
 
 
 
-#Correlate(days=15, sort_articles=True).print_json_response(dataoutput=3, top=1)
+#Correlate(days=15, sort_articles=True).print_json_response(dataoutput=2)
 #Feedzilla(days=30).print_json_response()
