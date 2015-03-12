@@ -5,7 +5,7 @@
 To run a forwarder:
 
 
-1. Install python3 (debian/ubuntu) sudo apt-get install python3
+1. Install python3 (on debian/ubuntu) sudo apt-get install python3
 
 2. Install pip3 (on debian/ubuntu) sudo apt-get install python3-pip
 
