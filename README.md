@@ -9,7 +9,7 @@ To run a forwarder:
 
 2. Install pip3 (on debian/ubuntu in a bash shell) -- sudo apt-get install python3-pip
 
-3. Install required module (in a bash shell) -- pip3 install pymysql"
+3. Install required module (in a bash shell) -- pip3 install pymysql
 
 4. Install required module (in a bash shell) -- pip3 install TwitterSearch
 
