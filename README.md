@@ -5,13 +5,13 @@
 To run a forwarder:
 
 
-1. Install python3 (on debian/ubuntu) sudo apt-get install python3
+1. Install python3 (on debian/ubuntu in a bash shell) -- sudo apt-get install python3
 
-2. Install pip3 (on debian/ubuntu) sudo apt-get install python3-pip
+2. Install pip3 (on debian/ubuntu in a bash shell) -- sudo apt-get install python3-pip
 
-3. Install nessary modulespip3 install pymysql
+3. Install required module (in a bash shell) -- pip3 install pymysql"
 
-4. pip3 install TwitterSearch
+4. Install required module (in a bash shell) -- pip3 install TwitterSearch
 
 5. Register a twitter app. https://apps.twitter.com/app/new
 
