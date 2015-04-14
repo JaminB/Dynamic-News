@@ -88,9 +88,12 @@ class Feedzilla:
             coordinates = [self.feedzillaBlob[i][9], self.feedzillaBlob[i][10]]
             self.articles.append({'id': id, 'title': title, 'source': source, 'source_url': source_url, 'summary': summary, 'publish_date': str(publish_date), 'location': location, 'coordinates': coordinates, 'tags': tags})
 
-    def print_json_response(self):
+    def get_json_resonse(self):
         import json
-        print('{'+json.dumps(self.articles, sort_keys=True, indent=4, separators=(',', ': '))+'}')
+        return ('{'+json.dumps(self.articles, sort_keys=True, indent=4, separators=(',', ': '))+'}')
+
+    def print_json_response(self):
+        print(self.get_json_resonse())
 
 class Twitter:
     def __init__(self, newsid):
@@ -108,10 +111,12 @@ class Twitter:
             text = self.twitterBlob[i][7].replace("b'","'").replace('b','')
             follower_count = self.twitterBlob[i][8]
             self.tweets.append({'tweet_id': tweet_id, 'news_id': news_id, 'screen_name': screen_name, 'created_at': created_at, 'hashtags': hashtags, 'location': location, 'coordinates': coordinates, 'text': text, 'follower_count': follower_count})
+    def get_json_response(self):
+        import json
+        return('{'+json.dumps(self.tweets, sort_keys=True, indent=4, separators=(',', ': '))+'}')
 
     def print_json_response(self):
-        import json
-        print('{'+json.dumps(self.tweets, sort_keys=True, indent=4, separators=(',', ': '))+'}')
+        print(self.get_json_response())
 
 
 class Correlate:
@@ -158,25 +163,26 @@ class Correlate:
         locationData = ['stories', locationList]
         self.globeData.append(locationData)
         
-
-    def print_json_response(self,dataoutput=1, top=0):
+    def get_json_response(self, dataoutput=1, top=0):
         import json
         from operator import itemgetter
         if dataoutput == 1:
-            print(json.dumps(self.globeData, sort_keys=True, indent=4, separators=(',', ': ')))
+            return (json.dumps(self.globeData, sort_keys=True, indent=4, separators=(',', ': ')))
         if dataoutput == 2:
             if top !=0:
                 newarticledata = []
                 for i in range(0, top):
                     newarticledata.append(self.articleData[i])
-                print(json.dumps(newarticledata, indent=4, sort_keys=True, separators=(',', ': ')))
+                return (json.dumps(newarticledata, indent=4, sort_keys=True, separators=(',', ': ')))
             else:
-                print(json.dumps(self.articleData, indent=4, sort_keys=True, separators=(',', ': ')))
+                return (json.dumps(self.articleData, indent=4, sort_keys=True, separators=(',', ': ')))
         if dataoutput == 3:
             import random
             randomIndex = random.randint(0, len(self.tweetText))
-            print(json.dumps([{'screen_name':self.tweetScreenNames[randomIndex], 'text': self.tweetText[randomIndex]}], indent=4, sort_keys=True, separators=(',', ': ')))
+            return json.dumps([{'screen_name':self.tweetScreenNames[randomIndex], 'text': self.tweetText[randomIndex]}], indent=4, sort_keys=True, separators=(',', ': '))
 
+    def print_json_response(self,dataoutput=1, top=0):
+        print(self.get_json_response())
 
 
 
