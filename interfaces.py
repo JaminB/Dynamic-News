@@ -88,12 +88,12 @@ class Feedzilla:
             coordinates = [self.feedzillaBlob[i][9], self.feedzillaBlob[i][10]]
             self.articles.append({'id': id, 'title': title, 'source': source, 'source_url': source_url, 'summary': summary, 'publish_date': str(publish_date), 'location': location, 'coordinates': coordinates, 'tags': tags})
 
-    def get_json_resonse(self):
+    def get_json_response(self):
         import json
         return ('{'+json.dumps(self.articles, sort_keys=True, indent=4, separators=(',', ': '))+'}')
 
     def print_json_response(self):
-        print(self.get_json_resonse())
+        print(self.get_json_response())
 
 class Twitter:
     def __init__(self, newsid):
