@@ -21,22 +21,29 @@ if args.sort == None:
     args.sort == False
 if args.top == None:
     args.top = 0
-try:
-    f = open(args.output_file, "w")
-except TypeError:
-    f = open("output.json", "w")
-contentType = "Content-type:text/json\r\n\r\n"
 
 def write_associated_tweets_by_time():
-    f.write(contentType + interfaces.Correlate(days=args.days, hours=args.hours, minutes=args.minutes).get_json_response())
+    try:
+        f = open(args.output_file, "w")
+    except TypeError:
+        f = open("output.json", "w")
+    f.write(interfaces.Correlate(days=args.days, hours=args.hours, minutes=args.minutes).get_json_response())
     f.close()
 
 def write_associated_articles_by_time():
-    f.write(contentType + interfaces.Correlate(days=args.days, hours=args.hours, minutes=args.minutes, sort_articles=args.sort).get_json_response(dataoutput=2, top=args.top))
+    try:
+        f = open(args.output_file, "w")
+    except TypeError:
+        f = open("output.json", "w")
+    f.write(interfaces.Correlate(days=args.days, hours=args.hours, minutes=args.minutes, sort_articles=args.sort).get_json_response(dataoutput=2, top=args.top))
     f.close()
 
 def write_random_tweet():
-    f.write(contentType + interfaces.Correlate(days=args.days, hours=args.hours, minutes=args.minutes).get_json_response(dataoutput=3))
+    try:
+        f = open(args.output_file, "w")
+    except TypeError:
+        f = open("output.json", "w")
+    f.write(interfaces.Correlate(days=args.days, hours=args.hours, minutes=args.minutes).get_json_response(dataoutput=3))
     f.close()
 
 if str(args.query).lower() == "associated_tweets":
