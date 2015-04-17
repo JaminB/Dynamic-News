@@ -501,8 +501,7 @@ def run():
         idsTagsDatesLocations = StoredQueries().get_relevant_article_tags(str(get_date_time_minus(get_current_date_time(), tolerence)))
         pauseIteration = False
         stepBack = 0
-        i = 0
-        while i < len(idsTagsDatesLocations):
+        for i in range(0, len(idsTagsDatesLocations)):
             print("Search Position: " + str(i) + " of " + str(len(idsTagsDatesLocations)) + " search tags")
             if pauseIteration:
                 i-=stepBack
