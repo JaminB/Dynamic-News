@@ -473,7 +473,7 @@ class TweetGrabber():
                 print("ASSOCIATING TWEET TO NEWS ARTICLE(" + str(tweet.get_news_id()) + '): ' + str(tweet.get_created_date()[0:30]) + ', ' + str(tweet.get_twitter_id()) + ', ' + tweet.get_screen_name() + ', ' + tweet.get_location())
             except err.IntegrityError:
                     skipCount+=1
-                    print("DUPLICATE TWEET: " + str(tweet.get_created_date()) + ', ' + str(tweet.get_twitter_id()) + ', ' + tweet.get_location())
+                    #print("DUPLICATE TWEET: " + str(tweet.get_created_date()) + ', ' + str(tweet.get_twitter_id()) + ', ' + tweet.get_location())
 
 
         print(str(skipCount) + " tweets skipped as they already exist in the database.")
