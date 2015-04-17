@@ -516,7 +516,6 @@ def run():
                 TweetGrabber(tags, id, publishDate).store_tweets()
                 i+=1
             except TwitterSearchException:
-                pauseIteration = True
                 print('Sleeping...Twitter API query quota reached.')
                 sleep(5)
                 print('Checking for new articles while we wait...')
