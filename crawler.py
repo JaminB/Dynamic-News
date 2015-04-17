@@ -528,6 +528,9 @@ def run():
                 NewsGrabber().store_articles()
                 sleep(10)
                 print('Trying again...')
+            print('Only associating articles to tweets where the article publish date is greater than: ' + str(get_date_time_minus(get_current_date_time(), tolerence)))
+            idsTagsDatesLocations = StoredQueries().get_relevant_article_tags(str(get_date_time_minus(get_current_date_time(), tolerence)))
+
 
 
 run()
