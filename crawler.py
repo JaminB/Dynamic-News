@@ -461,7 +461,7 @@ class TweetGrabber():
                 hashtags += str(hashtag['text'].encode('ascii', 'ignore')) + '|'
             try:
                 StoredQueries().insert_tweet(
-                                         str(tweet.get_twitter_id())[-5:],
+                                         str(tweet.get_twitter_id()),
                                          str(tweet.get_news_id()),
                                          str(tweet.get_screen_name()),
                                          str(tweet.get_created_date()),
@@ -502,6 +502,7 @@ def run():
         pauseIteration = False
         stepBack = 0
         for i in range(0, len(idsTagsDatesLocations)):
+            print("Search Position: " + str(i) + " of " + str(len(idsTagsDatesLocations)) + " search tags")
             if pauseIteration:
                 i-=stepBack
             id = idsTagsDatesLocations[i][0]
