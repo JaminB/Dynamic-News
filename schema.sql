@@ -19,7 +19,7 @@ CREATE TABLE feedzilla(
 );
 
 CREATE TABLE twitter(
-    tweet_id DOUBLE NOT NULL,
+    tweet_id VARCHAR(50) NOT NULL,
     news_id INTEGER NOT NULL,
     screen_name VARCHAR(50) NOT NULL,
     created_at DATETIME NOT NULL,
