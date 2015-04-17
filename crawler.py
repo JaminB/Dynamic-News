@@ -501,7 +501,8 @@ def run():
         idsTagsDatesLocations = StoredQueries().get_relevant_article_tags(str(get_date_time_minus(get_current_date_time(), tolerence)))
         pauseIteration = False
         stepBack = 0
-        for i in range(0, len(idsTagsDatesLocations)):
+        i = 0
+        while i < len(idsTagsDatesLocations):
             print("Search Position: " + str(i) + " of " + str(len(idsTagsDatesLocations)) + " search tags")
             if pauseIteration:
                 i-=stepBack
@@ -519,6 +520,7 @@ def run():
                 TweetGrabber(tags, id, publishDate).store_tweets()
                 pauseIteration = False
                 stepBack = 0
+                i+=1
             except TwitterSearchException:
                 pauseIteration = True
                 stepBack += 1
