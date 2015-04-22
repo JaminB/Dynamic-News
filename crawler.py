@@ -497,7 +497,10 @@ def run():
     while True:
         print('Storing News Articles...')
         print('Only associating articles to tweets where the article publish date is greater than: ' + str(get_date_time_minus(get_current_date_time(), tolerence)))
-        NewsGrabber().store_articles()
+        try:
+            NewsGrabber().store_articles()
+        except ConnectionResetError:
+            print("Something went wrong...attempting to reconnect to the database.")
         idsTagsDatesLocations = StoredQueries().get_relevant_article_tags(str(get_date_time_minus(get_current_date_time(), tolerence)))
         i = 0
         while i < len(idsTagsDatesLocations):
