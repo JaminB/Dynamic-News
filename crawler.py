@@ -96,31 +96,25 @@ class StoredQueries:
         return self.queries['last_feedzilla_id']
 
     def insert_news_article(self, title, source, source_url, summary, publish_date, url, location, tags, latitude='', longitude=''):
-        import pymysql
-        try:
-            if MySql(self.get_last_id()).get_result()[0][0] == None:
-                id = '0'
-            else:
-                id = str(int(MySql(self.get_last_id()).get_result()[0][0]) + 1) #gets the last primary key id in the database, and adds one
+        if MySql(self.get_last_id()).get_result()[0][0] == None:
+            id = '0'
+        else:
+            id = str(int(MySql(self.get_last_id()).get_result()[0][0]) + 1) #gets the last primary key id in the database, and adds one
 
-            return str(MySql(self.queries['insert_news_article']\
-                .replace('[id]',id)\
-                .replace('[title]',title)\
-                .replace('[source]',source)\
-                .replace('[source_url]',source_url)\
-                .replace('[summary]',summary)\
-                .replace('[publish_date]',publish_date)\
-                .replace('[url]',url)\
-                .replace('[location]', location)\
-                .replace('[tags]', tags)\
-                .replace('[latitude]', str(latitude))\
-                .replace('[longitude]', str(longitude))).get_result())
-        except pymysql.err.OperationalError:
-            return 1
+        return str(MySql(self.queries['insert_news_article']\
+            .replace('[id]',id)\
+            .replace('[title]',title)\
+            .replace('[source]',source)\
+            .replace('[source_url]',source_url)\
+            .replace('[summary]',summary)\
+            .replace('[publish_date]',publish_date)\
+            .replace('[url]',url)\
+            .replace('[location]', location)\
+            .replace('[tags]', tags)\
+            .replace('[latitude]', str(latitude))\
+            .replace('[longitude]', str(longitude))).get_result())
 
     def insert_tweet(self, twitter_id,  id, screen_name, created_at, hashtags, location, coordinates, text, follower_count):
-        import pymysql
-        try:
             return str(MySql(self.queries['insert_tweet']\
                 .replace('[twitter_id]', twitter_id)\
                 .replace('[news_id]', id)\
@@ -131,15 +125,9 @@ class StoredQueries:
                 .replace('[coordinates]', coordinates)\
                 .replace('[text]', text)\
                 .replace('[follower_count]', follower_count)).get_result())
-        except pymysql.err.OperationalError:
-            return 1
 
     def get_relevant_article_tags(self, mindatetime):
-        import pymysql
-        try:
-            return MySql(str(self.queries['get_relevant_article_tags']).replace('[date]', mindatetime)).get_result()
-        except pymysql.err.OperationalError:
-            return -1
+        return MySql(str(self.queries['get_relevant_article_tags']).replace('[date]', mindatetime)).get_result()
 
 
     def is_continent(self, continent):
