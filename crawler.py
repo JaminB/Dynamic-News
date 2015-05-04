@@ -219,7 +219,7 @@ class StoredQueries:
         import pymysql
         try:
             MySql(str(self.queries['get_feedzilla_id_by_title']).replace('[equals]','=').replace('[title]',title)).get_result()[0][0]
-        except IndexError:
+        except:
             return False
         return True
 
