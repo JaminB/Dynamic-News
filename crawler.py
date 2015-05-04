@@ -96,7 +96,7 @@ class StoredQueries:
         return self.queries['last_feedzilla_id']
 
     def insert_news_article(self, title, source, source_url, summary, publish_date, url, location, tags, latitude='', longitude=''):
-        import pymysql.err.OperationalError
+        import pymysql
         try:
             if MySql(self.get_last_id()).get_result()[0][0] == None:
                 id = '0'
@@ -119,7 +119,7 @@ class StoredQueries:
             return 1
 
     def insert_tweet(self, twitter_id,  id, screen_name, created_at, hashtags, location, coordinates, text, follower_count):
-        import pymysql.err.OperationalError
+        import pymysql
         try:
             return str(MySql(self.queries['insert_tweet']\
                 .replace('[twitter_id]', twitter_id)\
@@ -135,7 +135,7 @@ class StoredQueries:
             return 1
 
     def get_relevant_article_tags(self, mindatetime):
-        import pymysql.err.OperationalError
+        import pymysql
         try:
             return MySql(str(self.queries['get_relevant_article_tags']).replace('[date]', mindatetime)).get_result()
         except pymysql.err.OperationalError:
@@ -143,7 +143,7 @@ class StoredQueries:
 
 
     def is_continent(self, continent):
-        import pymysql.err.OperationalError
+        import pymysql
         try:
             if len(MySql(str(self.queries['get_news_continent']).replace('[continent]', continent).replace('[equals]', '=')).get_result()) != 0:
                 return True
@@ -151,7 +151,7 @@ class StoredQueries:
         except pymysql.err.OperationalError:
             return False
     def is_country(self, country):
-        import pymysql.err.OperationalError
+        import pymysql
         try:
             if len(MySql(str(self.queries['get_news_country']).replace('[country]', country).replace('[equals]', '=')).get_result()) != 0:
                 return True
@@ -160,7 +160,7 @@ class StoredQueries:
             return False
 
     def is_a_an_the(self, article):
-        import pymysql.err.OperationalError
+        import pymysql
         try:
             if len(MySql(str(self.queries['get_article_adj']).replace('[article]', article).replace('[equals]', '=')).get_result()) != 0:
                 return True
@@ -169,7 +169,7 @@ class StoredQueries:
             return False
 
     def is_pronoun(self, pronoun):
-        import pymysql.err.OperationalError
+        import pymysql
         try:
             if len(MySql(str(self.queries['get_pronoun']).replace('[pronoun]', pronoun).replace('[equals]', '=')).get_result()) != 0:
                 return True
@@ -178,7 +178,7 @@ class StoredQueries:
             return False
 
     def is_preposition(self, verb):
-        import pymysql.err.OperationalError
+        import pymysql
         try:
             if len(MySql(str(self.queries['get_preposition']).replace('[preposition]', verb).replace('[equals]', '=')).get_result()) != 0:
                 return True
@@ -187,7 +187,7 @@ class StoredQueries:
             return False
 
     def is_verb(self, verb):
-        import pymysql.err.OperationalError
+        import pymysql
         try:
             if len(MySql(str(self.queries['get_verb']).replace('[verb]', verb).replace('[equals]', '=')).get_result()) != 0:
                 return True
@@ -196,7 +196,7 @@ class StoredQueries:
             return False
 
     def is_conjunction(self, conjunction):
-        import pymysql.err.OperationalError
+        import pymysql
         try:
             if len(MySql(str(self.queries['get_conjunction']).replace('[conjunction]', conjunction).replace('[equals]', '=')).get_result()) != 0:
                 return True
@@ -205,7 +205,7 @@ class StoredQueries:
             return False
 
     def does_article_have_coordinates(self, location):
-        import pymysql.err.OperationalError
+        import pymysql
         try:
             result = MySql(str(self.queries['get_feedzilla_latitude_by_location']).replace('[equals]','=').replace('[location]',location)).get_result()
             if result == []:
@@ -216,7 +216,7 @@ class StoredQueries:
 
 
     def does_article_exist(self, title):
-        import pymysql.err.OperationalError
+        import pymysql
         try:
             MySql(str(self.queries['get_feedzilla_id_by_title']).replace('[equals]','=').replace('[title]',title)).get_result()[0][0]
         except IndexError | pymysql.err.OperationalError:
